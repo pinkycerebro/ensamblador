@@ -1,0 +1,400 @@
+;**************************************************************
+;Programa jluzpic2.asm               Fecha: 22 Diciembre 2005
+;Secuenciador de 8 Canales y 16 efectos.
+;
+;Revisión: 0.0                     Programa para PIC16F84A
+;Velocidad de reloj: .........4 MHz            Instrucción: ................................ 1Mz=1 us
+;Perro Guardián: deshabilitado         Tipo de Reloj: RC
+;**************************************************************
+    LIST P=PIC16F84A   ; Pic a usar
+
+#INCLUDE <P16F84A.INC>      ; Lista de etiquetas de microchip
+
+; Fuses, configuran opciones externas de hardware para la programacion
+
+   __CONFIG    _CP_OFF & _PWRTE_ON & _WDT_OFF & _RC_OSC
+
+;=================== Mapa de Memoria ======================
+
+;STATUS   equ   0x03   ; Haciendo asignaciones
+;TRISA   equ   0x05
+;TRISB   equ   0x06         
+;PORTA   equ   0x05
+;PORTB   equ   0x06
+
+
+
+llaves   equ   0x0C   ; almacenara el STATUS de las llaves
+PDel0   equ   0x0D   ; variable para Demora
+PDel1   equ   0x0E   ; variable para Demora
+
+
+;============== Configuración de puertos ==================
+
+        ORG     0x0000
+        GOTO    inicio
+        ORG     0x0005
+      
+inicio   BSF     STATUS,5   ; cambio al banco 1 del pic
+        MOVLW   0x1f      
+        MOVWF   TRISA      ; Asigna al puerto A como entrada
+        MOVLW   0x00      
+        MOVWF   TRISB      ; y Al puerto B como salida
+        BCF     STATUS,5   ; Regresa al banco 0
+        CLRF    PORTA      ; limpia el puerto A
+        CLRF    PORTB      ; limpia el puerto B
+
+
+swich   MOVF   PORTA,0      ; carga w con el puerto A
+        ANDLW   0x0F      ; retiene los 4 bits de interes (las llaves)
+      MOVWF   llaves      ; y los guarda en llaves
+        XORLW   0x00      ; verifica si es el primer efecto
+        BTFSC   STATUS,2   ; si es así
+        CALL    efect1      ; lo llama y lo ejecuta
+        MOVF    llaves,0   ; sino, carga llaves en w
+        XORLW   0x01      ; y verifica si es el segundo efecto
+        BTFSC   STATUS,2   ; si es así
+        CALL    efect2      ; lo llama y lo ejecuta
+        MOVF    llaves,0   ; y así con los demás
+        XORLW   0x02      ; ya me aburrí
+        BTFSC   STATUS,2   ; como verás el resto es lo mismo
+        CALL    efect3
+        MOVF    llaves,0
+        XORLW   0x03
+        BTFSC   STATUS,2
+        CALL    efect4
+        MOVF    llaves,0
+        XORLW   0x04      
+        BTFSC   STATUS,2
+        CALL    efect5
+        MOVF    llaves,0
+        XORLW   0x05      
+        BTFSC   STATUS,2
+        CALL    efect6
+        MOVF    llaves,0
+        XORLW   0x06      
+        BTFSC   STATUS,2
+        CALL    efect7
+        MOVF    llaves,0
+        XORLW   0x07      
+        BTFSC   STATUS,2
+        CALL    efect8
+        MOVF    llaves,0
+        XORLW   0x08      
+        BTFSC   STATUS,2
+        CALL    efect9
+        MOVF    llaves,0
+        XORLW   0x09      
+        BTFSC   STATUS,2
+        CALL    efect10
+        MOVF    llaves,0
+        XORLW   0x0A      
+        BTFSC   STATUS,2
+        CALL    efect11
+        MOVF    llaves,0
+        XORLW   0x0B      
+        BTFSC   STATUS,2
+        CALL    efect12
+        MOVF    llaves,0
+        XORLW   0x0C      
+        BTFSC   STATUS,2
+        CALL    efect13
+        MOVF    llaves,0
+        XORLW   0x0D      
+        BTFSC   STATUS,2
+        CALL    efect14
+        MOVF    llaves,0
+        XORLW   0x0E      
+        BTFSC   STATUS,2
+        CALL    efect15
+        MOVF    llaves,0
+        XORLW   0x0F      
+        BTFSC   STATUS,2
+        CALL    efect16
+        GOTO    swich      ; Comienza a revisar de nuevo
+
+;======================== Efectos =========================
+
+efect1   CLRF    PORTB      ; limpia el puerto B
+        BSF     PORTB,7      ; (10000000)
+        CALL    Demora
+        BSF     PORTB,6      ; (11000000)
+        CALL    Demora
+        BSF     PORTB,5      ; (11100000)
+        CALL    Demora
+        BSF     PORTB,4      ; (11110000)
+        CALL    Demora
+        BSF     PORTB,3      ; (11111000)
+        CALL    Demora
+        BSF     PORTB,2      ; (11111100)
+        CALL    Demora
+        BSF     PORTB,1      ; (11111110)
+        CALL    Demora
+        BSF     PORTB,0      ; (11111111)
+        CALL    Demora
+        BCF     PORTB,7      ; (01111111)
+        CALL    Demora
+        BCF     PORTB,6      ; (00111111)
+        CALL    Demora
+        BCF     PORTB,5      ; (00011111)
+        CALL    Demora
+        BCF     PORTB,4      ; (00001111)
+        CALL    Demora
+        BCF     PORTB,3      ; (00000111)
+        CALL    Demora
+        BCF     PORTB,2      ; (00000011)
+        CALL    Demora
+        BCF     PORTB,1      ; (00000001)
+        CALL    Demora
+        CLRF    PORTB      ; (00000000)
+        CALL    Demora
+trece   BSF     PORTB,0      ; (00000001)
+        CALL    Demora
+        BSF     PORTB,1      ; (00000011)
+        CALL    Demora
+        BSF     PORTB,2      ; (00000111)
+        CALL    Demora
+        BSF     PORTB,3      ; (00001111)
+        CALL    Demora
+        BSF     PORTB,4      ; (00011111)
+        CALL    Demora
+        BSF     PORTB,5      ; (00111111)
+        CALL    Demora
+        BSF     PORTB,6      ; (01111111)
+        CALL    Demora
+        BSF     PORTB,7      ; (11111111)
+        CALL    Demora
+        BCF     PORTB,0      ; (11111110)
+        CALL    Demora
+        BCF     PORTB,1      ; (11111100)
+        CALL    Demora
+        BCF     PORTB,2      ; (11111000)
+        CALL    Demora
+        BCF     PORTB,3      ; (11110000)
+
+      RETURN
+
+efect8   CALL   efect3      ; combinan el efecto 3
+      CALL   efect2      ; con el efecto 2
+      RETURN
+
+efect9   CLRF    PORTB      ; limpia el puerto B
+      MOVLW   0xEE      ; comienza con (11101110)
+      MOVWF   PORTB      ; lo pasa a PORTB
+      BSF      STATUS,0   ; pone el carry a 1
+rotar   CALL    Demora
+      RLF      PORTB,1      ; inicia la rotación
+      BTFSC   PORTB,7      ; ve si terminó de rotar
+      GOTO    rotar      ; sino continúa
+      CALL   Demora
+      RETURN         ; terminó, ver si cambió efecto
+
+efect10   CLRF    PORTB      ; limpia el puerto B
+      MOVLW   0xFE      ; comienza con (11111110)
+      MOVWF   PORTB      ; lo pasa a PORTB
+      BSF      STATUS,0   ; pone el carry a 1
+rotar1  CALL   Demora
+      RLF      PORTB,1      ; inicia la rotación
+      BTFSC   PORTB,7      ; ve si terminó de rotar
+      GOTO    rotar1      ; sino continúa
+rotar2   CALL   Demora
+      RRF      PORTB,1      ; ahora rota al revés
+      BTFSC   PORTB,0      ; ve si terminó de rotar
+      GOTO    rotar2      ; sino continúa
+      CALL   Demora
+      RETURN         ; terminó, ver si cambió efecto
+
+efect11   CLRF    PORTB      ; limpia el puerto B
+      BSF      PORTB,0      ; (00000001)
+        CALL    Demora
+      BSF      PORTB,1      ; (00000011)
+        CALL    Demora
+      BSF      PORTB,2      ; (00000111)
+        CALL    Demora
+      BSF      PORTB,3      ; (00001111)
+        CALL    Demora
+      BSF      PORTB,4      ; (00011111)
+        CALL    Demora
+      BSF      PORTB,5      ; (00111111)
+        CALL    Demora
+      BSF      PORTB,6      ; (01111111)
+        CALL    Demora
+      BSF      PORTB,7      ; (11111111)
+      BCF      STATUS,0   ; pone el carry a 0
+uno      CALL   Demora
+      RRF      PORTB,1      ; rotará uno apagado
+      BTFSC   PORTB,0      ; ve si es (11111110)
+      GOTO    uno      ; sino continúa
+        CALL    Demora
+      BCF      PORTB,1      ; (11111100)
+        CALL    Demora
+      BCF      PORTB,2      ; (11111000)
+        CALL    Demora
+      BCF      PORTB,3      ; (11110000)
+        CALL    Demora
+      BCF      PORTB,4      ; (11100000)
+        CALL    Demora
+      BCF      PORTB,5      ; (11000000)
+        CALL    Demora
+      BCF      PORTB,6      ; (10000000)
+      BCF      STATUS,0   ; pone el carry a 0
+dos      CALL   Demora
+      RRF      PORTB,1      ; rotará uno encendido
+      BTFSS   PORTB,0      ; ve si es (00000001)
+      GOTO    dos      ; sino continúa
+        CALL    Demora
+      RETURN         ; terminó, ver si cambió efecto
+
+efect12   CLRF    PORTB      ; limpia el puerto B
+      BSF      PORTB,0      ; (00000001)
+        CALL    Demora
+      BSF      PORTB,1      ; (00000011)
+        CALL    Demora
+      BSF      PORTB,2      ; (00000111)
+        CALL    Demora
+      BSF      PORTB,3      ; (00001111)
+        CALL    Demora
+      BSF      PORTB,4      ; (00011111)
+        CALL    Demora
+      BSF      PORTB,5      ; (00111111)
+        CALL    Demora
+      BSF      PORTB,6      ; (01111111)
+        CALL    Demora
+      BSF      PORTB,7      ; (11111111)
+        CALL    Demora
+      CLRF   PORTB      ; (00000000)
+        CALL    Demora
+      MOVLW   0xFF       
+      MOVWF   PORTB      ; (11111111) enciendo todo
+        CALL    Demora
+      CLRF   PORTB      ; (00000000)
+        CALL    Demora
+      MOVLW   0xFF       
+      MOVWF   PORTB      ; (11111111) enciendo todo
+        CALL    Demora
+      CLRF   PORTB      ; (00000000)
+        CALL    Demora
+      MOVLW   0xFF       
+      MOVWF   PORTB      ; (11111111) enciendo todo
+        CALL    Demora
+      CLRF   PORTB      ; (00000000)
+        CALL    Demora
+      MOVLW   0xFF       
+      MOVWF   PORTB      ; (11111111) enciendo todo
+        CALL    Demora
+        BCF     PORTB,7      ; (01111111)
+        CALL    Demora
+        BCF     PORTB,6      ; (00111111)
+        CALL    Demora
+        BCF     PORTB,5      ; (00011111)
+        CALL    Demora
+        BCF     PORTB,4      ; (00001111)
+        CALL    Demora
+        BCF     PORTB,3      ; (00000111)
+        CALL    Demora
+        BCF     PORTB,2      ; (00000011)
+        CALL    Demora
+        BCF     PORTB,1      ; (00000001)
+        CALL    Demora
+      RETURN
+
+efect13   CLRF    PORTB      ; limpia el puerto B
+      CALL   trece      ; ejecuta parte del efecto 1   
+      RETURN
+
+efect14   CLRF    PORTB      ; limpia el puerto B
+        BSF     PORTB,7      ; (10000000)   EFECTO ENCIENDE DE AFUERA AL CENTRO
+        BSF     PORTB,0      ; (10000001)-----
+        CALL    Demora
+      CLRF   PORTB
+        BSF     PORTB,6      ; (01000000)
+        BSF     PORTB,1      ; (01000010)-----
+        CALL    Demora
+      CLRF   PORTB
+        BSF     PORTB,5      ; (00100000)
+        BSF     PORTB,2      ; (00100100)-----
+        CALL    Demora
+      CLRF   PORTB
+        BSF     PORTB,4      ; (00010000)
+        BSF     PORTB,3      ; (00011000)-----
+        CALL    Demora
+        BSF     PORTB,5      ; (00111000)
+        BSF     PORTB,2      ; (00111100)
+        CALL    Demora
+        BSF     PORTB,6      ; (01111100)
+        BSF     PORTB,1      ; (01111110)
+        CALL    Demora
+        BSF     PORTB,7      ; (11111110)
+        BSF     PORTB,0      ; (11111111)
+        CALL    Demora
+      BCF     PORTB,3      ; (11110111)
+        BCF     PORTB,4      ; (11100111)
+        CALL    Demora
+        BCF     PORTB,5      ; (11000111)
+        BCF     PORTB,2      ; (11000011)
+        CALL    Demora
+        BCF     PORTB,6      ; (10000011)
+        BCF     PORTB,1      ; (10000001)
+        CALL    Demora
+        BCF     PORTB,7      ; (00000001)
+        BCF     PORTB,0      ; (00000000)
+        CALL    Demora
+        RETURN
+
+efect15   CLRF    PORTB      ; limpia el puerto B
+      MOVLW   0x80      ; comienza con (10000000)
+      MOVWF   PORTB      ; lo envía a la salida
+cuatro  BCF     STATUS,0   ; pone a 0 el bit C de status (carry)
+      CALL    Demora
+      MOVWF   PORTB      ; lo envía a la salida
+        RRF     PORTB,0      ; rota a la izquierda y pasa el valor a W
+      MOVWF   PORTB      ; lo envía a la salida
+      CALL   Demora
+      CLRF   PORTB      ; (00000000)
+      CALL   Demora
+      MOVWF   PORTB      ; repite
+      CALL   Demora
+      CLRF   PORTB      ; (00000000)
+      CALL   Demora
+      MOVWF   PORTB      ; lo envía a la salida
+        BTFSS   PORTB,0      ; ve si terminó de rotar
+        GOTO    cuatro
+      CALL   Demora
+      RETURN
+
+efect16   CLRF    PORTB      ; limpia el puerto B
+        BSF     PORTB,7      ; (10000000)
+        BCF     STATUS,0   ; pone a 0 el bit C de status (el 1º bit)
+seis    CALL    Demora
+        RRF     PORTB,1      ; rota a la derecha
+        BTFSS   PORTB,0      ; ve si terminó de rotar
+        GOTO    seis
+        CLRF    PORTB      ; (00000000)
+        BSF     PORTB,0      ; (00000001)
+        BCF     STATUS,0   ; pone el carry a 0
+siete   CALL    Demora
+        RLF     PORTB,1      ; rota a la izquierda
+        BTFSS   PORTB,7      ; ve si terminó de rotar
+        GOTO    siete      
+      CALL    Demora       
+      RETURN   
+
+;-------------------------------------------------------------
+; Generado con PDEL ver SP  r 1.0  el 30/12/2005 Hs 11:57:37
+; Descripcion: Delay 41500 ciclos
+;-------------------------------------------------------------
+Demora  movlw   .41       ; 1 set numero de repeticion  (B)
+        movwf   PDel0     ; 1 |
+PLoop1  movlw   .252      ; 1 set numero de repeticion  (A)
+        movwf   PDel1     ; 1 |
+PLoop2  clrwdt            ; 1 clear watchdog
+        decfsz  PDel1, 1  ; 1 + (1) es el tiempo 0  ? (A)
+        goto    PLoop2    ; 2 no, loop
+        decfsz  PDel0,  1 ; 1 + (1) es el tiempo 0  ? (B)
+        goto    PLoop1    ; 2 no, loop
+PDelL1  goto    PDelL2         ; 2 ciclos delay
+PDelL2  clrwdt              ; 1 ciclo delay
+        return              ; 2+2 Fin.
+;========================= final ==========================
+
+   END
